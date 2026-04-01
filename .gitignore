@@ -1,0 +1,9 @@
+__pycache__/
+*.pyc
+*.pyo
+venv/
+env/
+.env
+
+# Disable commiting local db so Render uses its own ephemeral copy
+expenses.db
