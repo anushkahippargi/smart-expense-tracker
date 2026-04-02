@@ -1,84 +1,124 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Smart Expense Tracker</title>
-    <link rel="stylesheet" href="/static/style.css">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 </head>
-
 <body>
-    <div class="container">
-        <!-- Header -->
-        <header>
-            <div class="header-content">
-                <h1>Smart Expense Tracker</h1>
-                <p>AI-Powered Financial Insights</p>
-            </div>
-            <div class="budget-section">
-                <form id="budget-form" class="budget-form">
-                    <input type="number" id="budget-input" placeholder="Set Monthly Budget..." step="0.01" required>
-                    <button type="submit" class="btn btn-primary">Save</button>
-                </form>
-            </div>
-        </header>
+    <!-- TOAST NOTIFICATIONS CONTAINER -->
+    <div id="toast-container" class="toast-container"></div>
 
-        <!-- Budget Alert -->
-        <div id="alert-box" class="alert hidden"></div>
-
-        <!-- Dashboard Summary -->
-        <section class="dashboard-cards">
-            <div class="card stat-card">
-                <h3>Total Spent</h3>
-                <p id="total-spent" class="stat-value">₹0.00</p>
+    <!-- DELETE CONFIRMATION MODAL -->
+    <div id="delete-modal" class="modal-overlay hidden">
+        <div class="modal-card">
+            <h3>Delete Expense</h3>
+            <p>Are you sure you want to delete this expense?<br>This action cannot be undone.</p>
+            <div class="modal-actions">
+                <button id="modal-cancel-btn" class="btn btn-outline" style="min-width: 100px;">Cancel</button>
+                <button id="modal-confirm-btn" class="btn btn-danger" style="min-width: 100px;">Delete</button>
             </div>
-            <div class="card stat-card">
-                <h3>This Month</h3>
-                <p id="monthly-spent" class="stat-value highlight">₹0.00</p>
-                <p id="budget-status" class="sub-stat">Budget: Not Set</p>
-            </div>
-            <div class="card stat-card">
-                <h3>This Week</h3>
-                <p id="weekly-spent" class="stat-value">₹0.00</p>
-            </div>
-            <div class="card stat-card" style="background-color: #f0fdf4; border-color: #bbf7d0;">
-                <h3>Daily Avg (Month)</h3>
-                <p id="daily-avg" class="stat-value" style="color: #10b981;">₹0.00</p>
-            </div>
-        </section>
-
-        <!-- AI Input Section (Prominent) -->
-        <div class="card ai-card">
-            <h2>✨ Add Expense via AI</h2>
-            <form id="ai-form" class="ai-input-group">
-                <input type="text" id="ai-text-input" placeholder="e.g. Spent ₹200 on coffee and sandwiches" required>
-                <button type="submit" id="ai-submit-btn" class="btn btn-primary">Add Expense</button>
-            </form>
-            <p id="messageBox" class="alert hidden" style="margin-top: 1rem; margin-bottom: 0;"></p>
         </div>
+    </div>
 
-        <div class="main-layout">
-            <!-- Left Column: Forms & List -->
-            <div class="left-col">
-                <!-- Manual Add Expense Form -->
-                <div class="card">
-                    <div class="collapse-header"
-                        onclick="document.getElementById('manual-form-container').classList.toggle('hidden')">
-                        <h2>Manual Entry ▾</h2>
-                        <span class="collapse-hint">Click to expand</span>
+    <div class="app-layout">
+        
+        <!-- SIDEBAR -->
+        <aside class="sidebar">
+            <div class="sidebar-logo">
+                <h2>SmartTracker</h2>
+            </div>
+            <ul class="nav-menu">
+                <li class="nav-item active" data-target="dashboard">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="9"></rect><rect x="14" y="3" width="7" height="5"></rect><rect x="14" y="12" width="7" height="9"></rect><rect x="3" y="16" width="7" height="5"></rect></svg>
+                    <span>Dashboard</span>
+                </li>
+                <li class="nav-item" data-target="transactions">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+                    <span>Transactions</span>
+                </li>
+                <li class="nav-item" data-target="add-expense">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="16"></line><line x1="8" y1="12" x2="16" y2="12"></line></svg>
+                    <span>Add Expense</span>
+                </li>
+                <li class="nav-item" data-target="analytics">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"></polyline><polyline points="17 6 23 6 23 12"></polyline></svg>
+                    <span>Analytics</span>
+                </li>
+            </ul>
+        </aside>
+
+        <!-- MAIN WINDOW -->
+        <main class="main-content">
+            
+            <!-- TOP BAR -->
+            <header class="top-bar">
+                <div class="top-title">
+                    <h1 id="page-title">Dashboard</h1>
+                </div>
+                <div class="budget-section">
+                    <form id="budget-form" class="budget-form">
+                        <div class="budget-input-wrapper">
+                            <span>₹</span>
+                            <input type="number" id="budget-input" placeholder="Set Budget" step="0.01" required>
+                        </div>
+                        <button type="submit" id="budget-submit-btn" class="btn btn-primary">Save</button>
+                    </form>
+                </div>
+            </header>
+
+            <div class="content-wrapper">
+                <!-- Budget Alert -->
+                <div id="alert-box" class="alert hidden"></div>
+
+                <!-- VIEW: DASHBOARD -->
+                <div id="view-dashboard" class="view-section active view-animate">
+                    
+                    <section class="dashboard-cards">
+                        <div class="card stat-card border-blue">
+                            <h3 class="stat-label">Total Spent</h3>
+                            <p id="total-spent" class="stat-value text-blue"><span class="spinner" style="color:var(--primary); font-size:1.5rem;"></span></p>
+                        </div>
+                        <div class="card stat-card border-orange">
+                            <h3 class="stat-label">This Month</h3>
+                            <p id="monthly-spent" class="stat-value text-dark"><span class="spinner" style="color:var(--text-muted); font-size:1.5rem;"></span></p>
+                            <p id="budget-status" class="sub-stat">Budget: Not Set</p>
+                        </div>
+                        <div class="card stat-card border-purple">
+                            <h3 class="stat-label">This Week</h3>
+                            <p id="weekly-spent" class="stat-value text-dark"><span class="spinner" style="color:var(--text-muted); font-size:1.5rem;"></span></p>
+                        </div>
+                        <div class="card stat-card bg-success-light border-green">
+                            <h3 class="stat-label text-success">Daily Avg (Month)</h3>
+                            <p id="daily-avg" class="stat-value text-success"><span class="spinner" style="color:var(--success); font-size:1.5rem;"></span></p>
+                        </div>
+                    </section>
+
+                    <div class="ai-input-card card">
+                        <div class="ai-input-header">
+                            <h2>✨ Smart Expense Entry</h2>
+                            <p>Type naturally to add an expense using AI</p>
+                        </div>
+                        <form id="ai-form" class="ai-input-group">
+                            <input type="text" id="ai-text-input" placeholder="e.g. 'Spent 500 on groceries today' or 'Booked train for 1200'" required>
+                            <button type="submit" id="ai-submit-btn" class="btn btn-primary">
+                                <span class="btn-text">Add via AI</span>
+                            </button>
+                        </form>
+                        <p id="messageBox" class="alert hidden" style="margin-top: 1.5rem; margin-bottom: 0px;"></p>
                     </div>
-                    <div id="manual-form-container" class="hidden" style="margin-top: 1.5rem;">
-                        <form id="expense-form">
-                            <input type="hidden" id="expense-id">
-                            <div class="form-group row">
-                                <input type="number" id="amount" placeholder="Amount (₹)" step="0.01" required>
-                                <input type="date" id="date" required>
-                            </div>
-                            <div class="form-group">
-                                <select id="category" required>
-                                    <option value="" disabled selected>Select Category...</option>
+                </div>
+
+                <!-- VIEW: TRANSACTIONS -->
+                <div id="view-transactions" class="view-section hidden">
+                    <div class="card full-height-card view-animate">
+                        <div class="card-header">
+                            <h2>Recent Transactions</h2>
+                            <div class="header-actions">
+                                <select id="category-filter" class="table-filter">
+                                    <option value="All">All Categories</option>
                                     <option value="Food">Food</option>
                                     <option value="Travel">Travel</option>
                                     <option value="Bills">Bills</option>
@@ -86,81 +126,173 @@
                                     <option value="Entertainment">Entertainment</option>
                                     <option value="Others">Others</option>
                                 </select>
+                                <button class="btn btn-primary" onclick="if(!window.isAddingNew){ document.getElementById('expense-form').reset(); document.getElementById('expense-id').value = ''; document.getElementById('submit-btn').innerHTML = '<span class=\'btn-text\'>Save Expense</span>'; document.getElementById('cancel-edit-btn').classList.add('hidden'); } window.isAddingNew = true; switchView('add-expense');"> <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right:0.25rem;"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg> Add New</button>
                             </div>
-                            <div class="form-group">
-                                <input type="text" id="description" placeholder="Description (Optional)">
-                            </div>
-                            <div class="form-actions">
-                                <button type="submit" id="submit-btn" class="btn btn-success">Save Manually</button>
-                                <button type="button" id="cancel-edit-btn" class="btn btn-secondary hidden">Cancel
-                                    Edit</button>
-                            </div>
-                        </form>
-                    </div>
-                </div>
-
-                <!-- Expense List -->
-                <div class="card">
-                    <h2 style="margin-bottom: 1rem; font-size: 1.25rem;">Recent Expenses</h2>
-                    <div class="table-container">
-                        <table>
-                            <thead>
-                                <tr>
-                                    <th>Date</th>
-                                    <th>Category</th>
-                                    <th>Description</th>
-                                    <th>Amount</th>
-                                    <th>Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody id="expense-list">
-                                <!-- Dynamic rows here -->
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Right Column: Insights & Charts -->
-            <div class="right-col">
-                <!-- AI Insights -->
-                <div class="card insights-card">
-                    <div class="insights-header">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
-                            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>
-                        </svg>
-                        <h2 style="font-size: 1.25rem;">AI Insights</h2>
-                    </div>
-
-                    <div style="margin-bottom: 1rem; font-size: 0.95rem;">
-                        <strong>Frequent Category:</strong> <span id="frequent-cat"
-                            style="color: #a21caf; background: #fae8ff; padding: 0.2rem 0.6rem; border-radius: 12px; margin-left: 0.5rem; font-weight: 500;">Loading...</span>
-                    </div>
-
-                    <ul id="insights-list" class="insights-list">
-                        <li>Loading AI Insights...</li>
-                    </ul>
-                </div>
-
-                <!-- Visualizations -->
-                <div class="card">
-                    <h2 style="margin-bottom: 1rem; font-size: 1.25rem;">Spending Trends</h2>
-                    <div class="charts-container">
-                        <div class="chart-box">
-                            <img id="pie-chart" class="chart-img hidden" alt="Category Pie Chart">
-                            <div id="pie-placeholder" class="placeholder">Not enough data</div>
                         </div>
-                        <div class="chart-box">
-                            <img id="bar-chart" class="chart-img hidden" alt="Daily Trends Bar Chart">
-                            <div id="bar-placeholder" class="placeholder">Not enough data</div>
+                        <div class="table-container">
+                            <table class="transaction-table">
+                                <thead>
+                                    <tr>
+                                        <th>Date</th>
+                                        <th>Category</th>
+                                        <th>Description</th>
+                                        <th class="text-right">Amount</th>
+                                        <th class="text-right">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="expense-list">
+                                    <!-- Dynamic rows here -->
+                                </tbody>
+                            </table>
                         </div>
                     </div>
                 </div>
+
+                <!-- VIEW: ADD EXPENSE (MANUAL) -->
+                <div id="view-add-expense" class="view-section hidden">
+                    <div class="card centered-card view-animate">
+                        <div class="card-header-simple">
+                            <h2>Manual Entry</h2>
+                            <p class="subtext">Add or update an expense record.</p>
+                        </div>
+                        <div id="manual-form-container">
+                            <form id="expense-form">
+                                <input type="hidden" id="expense-id">
+                                <div class="form-group row">
+                                    <div class="col">
+                                        <label>Amount (₹)</label>
+                                        <input type="number" id="amount" placeholder="0.00" step="0.01" required>
+                                    </div>
+                                    <div class="col">
+                                        <label>Date</label>
+                                        <input type="date" id="date" required>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label>Category</label>
+                                    <select id="category" required>
+                                        <option value="" disabled selected>Select Category...</option>
+                                        <option value="Food">Food</option>
+                                        <option value="Travel">Travel</option>
+                                        <option value="Bills">Bills</option>
+                                        <option value="Shopping">Shopping</option>
+                                        <option value="Entertainment">Entertainment</option>
+                                        <option value="Others">Others</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label>Description</label>
+                                    <input type="text" id="description" placeholder="Optional details">
+                                </div>
+                                <div class="form-actions right-align">
+                                    <button type="button" id="cancel-edit-btn" class="btn btn-outline hidden">Cancel</button>
+                                    <button type="submit" id="submit-btn" class="btn btn-primary"><span class="btn-text">Save Expense</span></button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- VIEW: ANALYTICS -->
+                <div id="view-analytics" class="view-section hidden">
+                    <div class="analytics-layout view-animate">
+                        
+                        <!-- AI Insights Card -->
+                        <div class="card insights-card">
+                            <div class="insights-header">
+                                <h2>💡 AI Financial Insights</h2>
+                            </div>
+                            <div class="frequent-cat-box">
+                                <span>Top Category:</span> 
+                                <span id="frequent-cat" class="badge-purple"><span class="spinner" style="vertical-align:bottom;"></span></span>
+                            </div>
+                            <ul id="insights-list" class="insights-list">
+                                <li>
+                                    <div style="display:flex; justify-content:center; padding:1rem;"><span class="spinner" style="color:var(--primary); font-size:1.5rem;"></span></div>
+                                </li>
+                            </ul>
+                        </div>
+
+                        <!-- Charts -->
+                        <div class="charts-grid">
+                            <div class="card chart-bg-card">
+                                <h3>Category Breakdown</h3>
+                                <div class="chart-box">
+                                    <img id="pie-chart" class="chart-img hidden" alt="Category Pie Chart">
+                                    <div id="pie-placeholder" class="placeholder"><span class="spinner" style="font-size:1.5rem;"></span></div>
+                                </div>
+                            </div>
+                            <div class="card chart-bg-card">
+                                <h3>Daily Trend</h3>
+                                <div class="chart-box">
+                                    <img id="bar-chart" class="chart-img hidden" alt="Daily Trends Bar Chart">
+                                    <div id="bar-placeholder" class="placeholder"><span class="spinner" style="font-size:1.5rem;"></span></div>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+
             </div>
-        </div>
+        </main>
     </div>
+    
+    <script>
+        // Internal View Router
+        function switchView(target) {
+            // Update active nav class
+            document.querySelectorAll('.nav-item').forEach(item => {
+                if (item.getAttribute('data-target') === target) {
+                    item.classList.add('active');
+                    document.getElementById('page-title').innerText = item.querySelector('span').innerText;
+                } else {
+                    item.classList.remove('active');
+                }
+            });
+
+            // Hide all views, show desired view
+            document.querySelectorAll('.view-section').forEach(view => {
+                view.classList.add('hidden');
+                view.classList.remove('active');
+            });
+            const targetView = document.getElementById(`view-${target}`);
+            targetView.classList.remove('hidden');
+            targetView.classList.add('active');
+            
+            // Reapply animation class
+            const animatable = targetView.querySelector('.view-animate') || targetView;
+            if (animatable.classList.contains('view-animate')) {
+                animatable.classList.remove('view-animate');
+                void animatable.offsetWidth; // trigger reflow
+                animatable.classList.add('view-animate');
+            }
+        }
+
+        document.querySelectorAll('.nav-item').forEach(item => {
+            item.addEventListener('click', (e) => {
+                let target = e.currentTarget.getAttribute('data-target');
+                window.isAddingNew = false;
+                switchView(target);
+            });
+        });
+        
+        // Ensure that app.js Edit opens the correct tab
+        setTimeout(() => {
+            if(window.editExpense) {
+                const globalEdit = window.editExpense;
+                window.editExpense = function(...args) {
+                   globalEdit(...args);
+                   switchView('add-expense');
+                };
+            }
+        }, 500);
+
+        // Intercept form cancel to redirect to transactions view
+        document.getElementById('cancel-edit-btn').addEventListener('click', () => {
+            switchView('transactions');
+        });
+    </script>
     <script src="/app.js"></script>
 </body>
-
 </html>
