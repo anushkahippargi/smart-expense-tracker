@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Smart Expense Tracker with AI Insights</title>
+    <title>Smart Expense Tracker</title>
     <link rel="stylesheet" href="/style.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 </head>
@@ -26,16 +26,6 @@
         <!-- Budget Alert -->
         <div id="alert-box" class="alert hidden"></div>
 
-        <!-- AI Input Section (Prominent) -->
-        <div class="card ai-card" style="margin-bottom: 2rem; border-color: var(--accent); box-shadow: 0 0 15px rgba(59, 130, 246, 0.4);">
-            <h2 style="color: #60a5fa; margin-bottom: 0.5rem;">Add Expense via AI</h2>
-            <form id="ai-form" style="display: flex; flex-wrap: wrap; gap: 1rem;">
-                <input type="text" id="ai-text-input" placeholder="e.g. Spent ₹200 on coffee" required style="flex: 1; min-width: 250px; font-size: 1.1rem; padding: 1rem; border: 1px solid #334155; border-radius: 8px; background: rgba(30, 41, 59, 0.5); color: white;">
-                <button type="submit" id="ai-submit-btn" class="btn btn-primary" style="white-space: nowrap; font-size: 1.1rem; padding: 1rem 1.5rem; border-radius: 8px; flex-shrink: 0;">✨ Add via AI</button>
-            </form>
-            <p id="messageBox" class="alert hidden" style="margin-top: 1rem; margin-bottom: 0; padding: 0.8rem; border-radius: 6px;"></p>
-        </div>
-
         <!-- Dashboard Summary -->
         <section class="dashboard-cards">
             <div class="card stat-card">
@@ -51,22 +41,32 @@
                 <h3>This Week</h3>
                 <p id="weekly-spent" class="stat-value">₹0.00</p>
             </div>
-            <div class="card stat-card" style="background: rgba(16, 185, 129, 0.1);">
+            <div class="card stat-card" style="background-color: #f0fdf4; border-color: #bbf7d0;">
                 <h3>Daily Avg (Month)</h3>
                 <p id="daily-avg" class="stat-value" style="color: #10b981;">₹0.00</p>
             </div>
         </section>
 
+        <!-- AI Input Section (Prominent) -->
+        <div class="card ai-card">
+            <h2>✨ Add Expense via AI</h2>
+            <form id="ai-form" class="ai-input-group">
+                <input type="text" id="ai-text-input" placeholder="e.g. Spent ₹200 on coffee and sandwiches" required>
+                <button type="submit" id="ai-submit-btn" class="btn btn-primary">Add Expense</button>
+            </form>
+            <p id="messageBox" class="alert hidden" style="margin-top: 1rem; margin-bottom: 0;"></p>
+        </div>
+
         <div class="main-layout">
             <!-- Left Column: Forms & List -->
             <div class="left-col">
-                <!-- Manual Add Expense Form (Secondary / Collapsible) -->
-                <div class="card" style="margin-bottom: 1.5rem;">
-                    <div style="display: flex; justify-content: space-between; align-items: center; cursor: pointer;" onclick="document.getElementById('manual-form-container').classList.toggle('hidden')">
+                <!-- Manual Add Expense Form -->
+                <div class="card">
+                    <div class="collapse-header" onclick="document.getElementById('manual-form-container').classList.toggle('hidden')">
                         <h2>Manual Entry ▾</h2>
-                        <span style="font-size: 0.8rem; color: #94a3b8;">Click to expand</span>
+                        <span class="collapse-hint">Click to expand</span>
                     </div>
-                    <div id="manual-form-container" class="hidden" style="margin-top: 1rem;">
+                    <div id="manual-form-container" class="hidden" style="margin-top: 1.5rem;">
                         <form id="expense-form">
                             <input type="hidden" id="expense-id">
                             <div class="form-group row">
@@ -97,7 +97,7 @@
 
                 <!-- Expense List -->
                 <div class="card">
-                    <h2>Recent Expenses</h2>
+                    <h2 style="margin-bottom: 1rem; font-size: 1.25rem;">Recent Expenses</h2>
                     <div class="table-container">
                         <table>
                             <thead>
@@ -122,12 +122,14 @@
                 <!-- AI Insights -->
                 <div class="card insights-card">
                     <div class="insights-header">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
-                        <h2>AI Insights</h2>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>
+                        </svg>
+                        <h2 style="font-size: 1.25rem;">AI Insights</h2>
                     </div>
                     
-                    <div style="margin-bottom: 1rem; color: #e2e8f0;">
-                        <strong>Frequent Category:</strong> <span id="frequent-cat" style="color: #c084fc;">Loading...</span>
+                    <div style="margin-bottom: 1rem; font-size: 0.95rem;">
+                        <strong>Frequent Category:</strong> <span id="frequent-cat" style="color: #a21caf; background: #fae8ff; padding: 0.2rem 0.6rem; border-radius: 12px; margin-left: 0.5rem; font-weight: 500;">Loading...</span>
                     </div>
 
                     <ul id="insights-list" class="insights-list">
@@ -137,7 +139,7 @@
 
                 <!-- Visualizations -->
                 <div class="card">
-                    <h2>Spending Trends</h2>
+                    <h2 style="margin-bottom: 1rem; font-size: 1.25rem;">Spending Trends</h2>
                     <div class="charts-container">
                         <div class="chart-box">
                             <img id="pie-chart" class="chart-img hidden" alt="Category Pie Chart">
